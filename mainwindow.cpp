@@ -406,4 +406,36 @@ void MainWindow::loadTasks()
 
 
 
+
+
+
+
+
+
+
+
+
+void MainWindow::loadTasks()
+{
+    QSettings settings("PersonalOrganizer");
+    settings.beginGroup("Tasks");
+    int taskCount = 0;
+    while (settings.contains(QString("task%1/title").arg(taskCount))) {
+        QString title = settings.value(QString("task%1/title").arg(taskCount)).toString();
+        QString description = settings.value(QString("task%1/description").arg(taskCount)).toString();
+        QDate date = settings.value(QString("task%1/date").arg(taskCount)).toDate();
+
+        // Проверка на наличие значений
+        if (!title.isEmpty() && !description.isEmpty() && date.isValid()) {
+            QListWidgetItem *newItem = new QListWidgetItem(title);
+            newItem->setData(Qt::User Role, description);
+            newItem->setData(Qt::User Role + 1, date);
+            ui->tasksListWidget->addItem(newItem);
+        }
+        taskCount++;
+    }
+    settings.endGroup();
+}
+
+
 */
