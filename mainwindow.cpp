@@ -310,4 +310,45 @@ $HOME/.config/MyCompany/PersonalOrganizer.conf
 Иногда настройки могут оказаться в $HOME/.local/share/ИмяОрганизации/ИмяПриложения.conf.
 В очень старых приложениях или при нестандартной конфигурации могли использоваться пути вида $HOME/.ИмяПриложения/ИмяПриложения.conf или $HOME/.ИмяПриложения.conf.
 
+
+
+void MainWindow::saveTasks()
+{
+    QSettings settings("PersonalOrganizer");
+    settings.beginGroup("Tasks");
+    settings.clear(); // Удаляем все старые задачи перед сохранением новых
+    for (int i = 0; i < ui->tasksListWidget->count(); ++i) {
+        QListWidgetItem *item = ui->tasksListWidget->item(i);
+        QString title = item->text();
+        QString description = item->data(Qt::User Role).toString();
+        QDate date = item->data(Qt::User Role + 1).toDate();
+        settings.setValue(QString("task%1/title").arg(i), title);
+        settings.setValue(QString("task%1/description").arg(i), description);
+        settings.setValue(QString("task%1/date").arg(i), date);
+    }
+    settings.endGroup();
+}
+
+void MainWindow::loadTasks()
+{
+    QSettings settings("PersonalOrganizer");
+    settings.beginGroup("Tasks");
+    QStringList keys = settings.childKeys();
+    for (const QString &key : keys) {
+        if (key.startsWith("task")) {
+            QString title = settings.value(key).toString(); // Получаем title
+            QString description = settings.value(key.replace("/title", "/description")).toString(); // Получаем description
+            QDate date = settings.value(key.replace("/title", "/date")).toDate(); // Получаем date
+            QListWidgetItem *newItem = new QListWidgetItem(title);
+            newItem->setData(Qt::User Role, description);
+            newItem->setData(Qt::User Role + 1, date);
+            ui->tasksListWidget->addItem(newItem);
+        }
+    }
+    settings.endGroup();
+}
+
+
+
+
 */
